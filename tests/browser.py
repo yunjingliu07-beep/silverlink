@@ -3,12 +3,14 @@ import os
 from playwright.sync_api import sync_playwright, expect
 
 BASE_URL = os.environ.get('SILVERLINK_TEST_URL', 'http://127.0.0.1:5173')
+LANGUAGE = os.environ.get('SILVERLINK_TEST_LANGUAGE', 'zh')
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True, executable_path=os.environ.get('CHROMIUM_PATH', '/usr/bin/chromium'), args=['--no-sandbox'])
     page = browser.new_page(viewport={'width':1440,'height':1000})
     errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.goto(BASE_URL, wait_until='networkidle')
+    if LANGUAGE == 'en': page.locator('.topbar [data-action="language"]').click()
     expect(page.locator('.task-card')).to_have_count(6)
     page.locator('[data-filter="digital"]').click()
     expect(page.locator('.task-card')).to_have_count(2)
@@ -29,7 +31,7 @@ with sync_playwright() as p:
         page.locator(f'[data-action="start"][data-id="{id}"]').click()
         page.locator('[name="code"]').fill('000000')
         page.locator('#start-form button[type="submit"]').click()
-        expect(page.locator('#modal-error')).to_contain_text('不正确')
+        expect(page.locator('#modal-error')).to_contain_text('code is incorrect' if LANGUAGE == 'en' else '不正确')
         page.locator('[name="code"]').fill(code)
         page.locator('#start-form button[type="submit"]').click()
         page.locator(f'[data-action="finish"][data-id="{id}"]').click()
@@ -54,6 +56,11 @@ with sync_playwright() as p:
     with page.expect_download() as d:
         page.locator('[data-action="certificate"][data-id="service"]').click()
     assert d.value.suggested_filename.endswith('.html')
+    certificate_html=open(d.value.path(),encoding='utf8').read()
+    if LANGUAGE == 'en':
+        assert '<html lang="en">' in certificate_html and 'DEMO ONLY' in certificate_html
+    else:
+        assert '<html lang="zh-Hans">' in certificate_html and '演示样本' in certificate_html
     action('redeem')
     action('confirm-redeem','#modal')
     assert page.evaluate("JSON.parse(localStorage.getItem('silverlink-demo-v1')).points") == 250

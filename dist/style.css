@@ -6,3 +6,30 @@
 .task-meta,.task-bottom>span,.person,.chip{font-size:12px}.list-heading,.map-location,.category,.match-score,.stat label,.hero p{font-size:11px}.notice{color:#687958}.form-grid .field{font-size:13px}.reward p,.safety-card p,.certificate p,.detail-section p{color:#748064}.mobile-brand{text-decoration:none}.stars{flex-wrap:wrap}.stars label{font-size:18px;display:flex;align-items:center;gap:2px}.stars input{margin:0 3px 0 0}.hero .pill .icon{width:13px;height:13px}
 @media(max-width:700px){.hero-art{right:-19px;width:190px;height:143px}.hero-copy{max-width:83%}.hero p{font-size:11px;max-width:72%}.bottom-note{font-size:10px}.task-meta{font-size:12px}.task-card h3{font-size:16px}.category,.match-score{font-size:11px}.chip{font-size:11px}.nav a span{font-size:10px}.page-head p{font-size:12px}.hero-link{font-size:10px}}
 @media(max-width:360px){.top-actions{gap:4px}.top-actions .demo-label{display:none}.top-actions select{max-width:102px}}
+/* Language controls remain visible at every supported screen width. */
+.language-switch{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;min-width:43px;min-height:39px;padding:8px 10px;border:1px solid #cdd8c5;background:#f4f7ee;border-radius:7px;color:#365c43;font-size:12px;font-weight:650;white-space:nowrap}
+.language-switch:hover{background:#e8f0df}.modal-head-actions{display:flex;gap:8px;align-items:center;flex-shrink:0}.modal-head h2{overflow-wrap:anywhere}
+html[data-language=en] .brand small{font-size:8px;letter-spacing:1.5px}
+html[data-language=en] .hero h2{font-size:26px;letter-spacing:-.5px}
+html[data-language=en] .nav a{font-size:13px;gap:10px;padding-left:12px;padding-right:8px}
+html[data-language=en] .help-card h3{font-size:15px}
+html[data-language=en] .stat-trend{display:none}
+html[data-language=en] .task-card h3{font-size:14px}
+html[data-language=en] .task-meta{line-height:1.7}
+html[data-language=en] .task-bottom{gap:8px;align-items:flex-start}
+html[data-language=en] .task-bottom>.person{flex-wrap:wrap;max-width:65%;gap:4px}
+html[data-language=en] .task-bottom>span{font-size:10px;max-width:35%;text-align:right}
+html[data-language=en] .map-summary-row p{font-size:10px}
+html[data-language=en] .section-heading{align-items:flex-start}
+html[data-language=en] .section-heading>.link-button{white-space:nowrap}
+html[data-language=en] .page-head h1{font-size:28px;letter-spacing:-.6px}
+html[data-language=en] .stat label{font-size:11px;line-height:1.5;display:block}
+html[data-language=en] .reward footer{flex-wrap:wrap;gap:10px}
+html[data-language=en] .row.spread{gap:8px}
+html[data-language=en] .service-card .actions .btn{white-space:normal;text-align:center}
+html[data-language=en] .safety-card .btn{padding:10px 14px}
+@media(max-width:1150px){.top-actions>.demo-label{display:none}}
+@media(max-width:940px){html[data-language=en] .nav a{padding:15px;gap:3px}.top-actions{gap:8px}}
+@media(max-width:700px){.language-switch{min-width:38px;min-height:32px;font-size:11px;padding:6px 8px}.top-actions{gap:6px}.top-actions>.demo-label{display:none}.user{display:none}.top-actions select{max-width:110px}.mobile-brand{font-size:14px}.modal-head{gap:12px}.modal-head h2{font-size:18px}.modal-head-actions{gap:5px}html[data-language=en] .nav a{padding:7px 3px}html[data-language=en] .nav a span{font-size:9px;line-height:1.2;text-align:center}html[data-language=en] .hero-copy{max-width:92%}html[data-language=en] .hero h2{font-size:21px;max-width:92%;line-height:1.5}html[data-language=en] .hero p{max-width:80%;font-size:11px}html[data-language=en] .hero-art{width:148px;right:-28px;opacity:.65}html[data-language=en] .hero{padding:20px 17px}html[data-language=en] .page-head{flex-wrap:wrap;gap:10px}html[data-language=en] .page-head h1{font-size:25px}html[data-language=en] .page-head>.btn{margin-top:0}html[data-language=en] .section-heading{flex-wrap:wrap;gap:9px}html[data-language=en] .section-heading p{font-size:11px;line-height:1.6}html[data-language=en] .map-summary-row{gap:8px}html[data-language=en] .map-summary-row p{font-size:9px}html[data-language=en] .map-summary h3{font-size:13px}html[data-language=en] .map-caption{font-size:8px;gap:10px}html[data-language=en] .map-caption>span{max-width:50%}html[data-language=en] .map-panel{min-height:390px}html[data-language=en] .marker-label{max-width:220px;white-space:normal}html[data-language=en] .bottom-note{line-height:1.8}.large-text .language-switch{font-size:14px}}
+@media(max-width:360px){.topbar{padding-left:12px;padding-right:12px;gap:5px}.top-actions{gap:4px}.mobile-brand{font-size:12px;gap:5px}.mobile-brand img{width:25px;height:25px}.top-actions select{max-width:98px}.top-actions>.icon-button{min-width:28px}}
+@media(max-width:700px){html[data-language=en] .marker-label{width:max-content;max-width:210px;white-space:normal;text-align:center;line-height:1.5}html[data-language=en] .large-text .page-head h1{font-size:28px}}

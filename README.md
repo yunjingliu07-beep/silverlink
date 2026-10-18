@@ -2,6 +2,8 @@
 
 连接新加坡社区长者与志愿者的响应式网站。暖白与森林绿界面，支持手机、平板和桌面，大字号模式及键盘操作。
 
+**中英双语：** 点击页面顶部的 `EN`／`中文` 按钮即可切换，语言选择会自动保存。所有界面、任务示例、匹配原因、提示、日期、表单验证与证书均支持双语。切换不会清空现有记录或未提交的表单；用户自行填写的姓名、任务、评价保持原文。
+
 **当前交付是可完整体验的本机交互演示，不是可供真实服务运营的生产系统。** 所有默认人物、任务、历史时长与奖励均为虚构。数据只保存在当前浏览器的 `localStorage` 中；角色切换不是身份认证。
 
 ## 运行
@@ -15,7 +17,7 @@ npm start
 访问 http://localhost:5173 。不要直接以 `file://` 打开 HTML，因为浏览器需要通过 HTTP 加载 ES modules。
 
 ```bash
-npm test          # 8 项匹配、状态、时长、评价与积分规则测试
+npm test          # 14 项业务规则与国际化测试
 npm run build    # 校验发布文件及 JS 语法；静态发布目录为 dist/
 ```
 
@@ -71,12 +73,17 @@ dist/
   index.html       页面入口及可访问性基础
   app.js           页面、表单、路由与交互
   domain.js        匹配、服务状态、积分及证书规则
+  i18n.js          语言偏好、翻译函数及地区格式
+  i18n-en.js       英文界面翻译词库
+  i18n-data.js     示例数据及系统记录的语言显示
   style.css        响应式视觉及大字号样式
   favicon.svg      原创品牌图标
 scripts/check.mjs  零依赖静态检查
 tests/
   domain.test.js   业务规则测试
+  i18n.test.js     翻译覆盖及用户数据保留测试
   browser.py       可选 Playwright 端到端检查
+  bilingual-browser.py  双语、表单保留与响应式回归检查
 .openai/hosting.json  Sites 私人预览托管配置
 ```
 
@@ -84,9 +91,11 @@ tests/
 
 ```bash
 CHROMIUM_PATH=/usr/bin/chromium python tests/browser.py
+CHROMIUM_PATH=/usr/bin/chromium SILVERLINK_TEST_LANGUAGE=en python tests/browser.py
+CHROMIUM_PATH=/usr/bin/chromium python tests/bilingual-browser.py
 ```
 
-测试覆盖两次完整服务、双方评价、证书下载、积分兑换、任务发布与持久化、紧急联系人、用户输入转义，以及四种宽度下的六个页面。
+测试覆盖中英两种语言下的完整服务、双方评价、证书下载、积分兑换、任务发布与持久化、紧急联系人、用户输入转义，以及四种宽度下的六个页面。双语专项检查还覆盖语言记忆、日期、未提交表单和错误提示保留、跨标签页语言同步、大字号布局与匹配字段稳定性。
 
 ## 后续生产化建议
 

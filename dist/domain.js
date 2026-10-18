@@ -38,7 +38,7 @@ export function stats(state) {
   const ratingCount = state.seed.ratingCount + reviews.length;
   return { hours: state.seed.hours + verified.reduce((a,t) => a + t.actualHours, 0), sessions: state.seed.sessions + verified.length, positives: state.seed.positives + reviews.filter(t => t.elderReview.stars >= 4).length, rating: (state.seed.ratingSum + reviews.reduce((a,t) => a + t.elderReview.stars,0)) / ratingCount };
 }
-export function audit(state, message) { state.audit.unshift({ id: uid('event'), message, date: new Date().toISOString() }); }
+export function audit(state, message, details = {}) { state.audit.unshift({ id: uid('event'), message, date: new Date().toISOString(), ...details }); }
 export function transition(state, id, action, payload = {}) {
   const t = state.tasks.find(t => t.id === id);
   if (!t) throw new Error('找不到这个任务。');
@@ -61,7 +61,7 @@ export function transition(state, id, action, payload = {}) {
   else if (action === 'verify' && role === 'admin' && t.status === 'completed') {
     if (state.reports.some(r => r.taskId === t.id && !r.closed)) throw new Error('此任务有尚未处理的反馈，请先处理后再核实。');
     t.status = 'verified'; const points = Math.round(t.actualHours * 10); state.points += points;
-    state.ledger.unshift({ id: uid('points'), text: t.title, amount: points, date: new Date().toISOString().slice(0,10) });
+    state.ledger.unshift({ id: uid('points'), text: t.title, taskId:t.id, amount: points, date: new Date().toISOString().slice(0,10) });
   } else if (action === 'cancel' && ['volunteer','elder'].includes(role) && ['applied','reserved'].includes(t.status)) { t.status = 'open'; delete t.code; }
   else if (action === 'review' && ['volunteer','elder'].includes(role) && ['completed','verified'].includes(t.status)) {
     const key = role === 'elder' ? 'elderReview' : 'volunteerReview';
@@ -70,13 +70,13 @@ export function transition(state, id, action, payload = {}) {
     if (!Number.isInteger(stars) || stars < 1 || stars > 5) throw new Error('请选择 1 至 5 星。');
     t[key] = { stars, text: String(payload.text || '').trim().slice(0,500), date: new Date().toISOString() };
   } else throw new Error('当前角色或任务状态不允许此操作。');
-  audit(state, `${STATUS[t.status]} · ${t.title} · ${role}`); return t;
+  audit(state, `${STATUS[t.status]} · ${t.title} · ${role}`, {type:'service',taskId:t.id,status:t.status,role}); return t;
 }
 export function parseRequest(text, fields) {
   let category = 'companion';
-  if (/医|诊|hospital|clinic/i.test(text)) category = 'medical';
-  else if (/手机|视频|照片|数码|phone|whatsapp/i.test(text)) category = 'digital';
-  else if (/买|采购|菜|巴刹|grocery|market/i.test(text)) category = 'grocery';
+  if (/医|诊|hospital|clinic|medical|doctor|appointment/i.test(text)) category = 'medical';
+  else if (/手机|视频|照片|数码|phone|whatsapp|video|photo|digital/i.test(text)) category = 'digital';
+  else if (/买|采购|菜|巴刹|grocer|market|shopping|shop|purchase/i.test(text)) category = 'grocery';
   return { title: String(text).trim().slice(0,26), description: String(text).trim(), category, ...fields };
 }
 export function certificateEligibility(state, kind) {
@@ -84,5 +84,5 @@ export function certificateEligibility(state, kind) {
 }
 export function redeem(state, cost, title) {
   if (!Number.isInteger(cost) || cost <= 0 || state.points < cost) throw new Error('积分不足，继续完成服务即可累积。');
-  state.points -= cost; state.ledger.unshift({ id: uid('redeem'), text: `演示兑换：${title}`, amount: -cost, date: new Date().toISOString().slice(0,10) });
+  state.points -= cost; state.ledger.unshift({ id: uid('redeem'), text: `演示兑换：${title}`, reward:title, amount: -cost, date: new Date().toISOString().slice(0,10) });
 }
