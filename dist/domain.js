@@ -42,7 +42,7 @@ export function audit(state, message, details = {}) { state.audit.unshift({ id: 
 export function transition(state, id, action, payload = {}) {
   const t = state.tasks.find(t => t.id === id);
   if (!t) throw new Error('找不到这个任务。');
-  const role = state.role;
+  const role = state.role==='institution'?'elder':state.role;
   if (action === 'apply' && role === 'volunteer' && t.status === 'open') {
     if (!eligible(t, state.profile)) throw new Error('语言、技能或可服务时间不符，请先更新个人资料。');
     const minutes = time => { const [h,m] = time.split(':').map(Number); return h * 60 + m; };

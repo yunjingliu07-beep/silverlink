@@ -28,10 +28,10 @@ test('language changes do not mutate saved tasks or matching identifiers',()=>{
  assert.equal(match(state.tasks[0],state.profile).score,score);assert.equal(JSON.stringify(state),before);
  setLanguage('zh');assert.equal(seedText(state.tasks[0],'title'),state.tasks[0].title);
 });
-test('custom content and edits remain verbatim, even when they look like a UI message',()=>{
+test('known custom content localizes while unknown text and originals stay intact',()=>{
  setLanguage('en');const original=initialState().tasks[0];
  const custom={...original,id:'custom-task',title:'我的服务'};
- assert.equal(seedText(custom,'title'),'我的服务');
+ assert.equal(seedText(custom,'title'),'My services');assert.equal(custom.title,'我的服务');
  assert.equal(seedText({...original,title:'自定义的陪诊需求'},'title'),'自定义的陪诊需求');
  assert.equal(ledgerText({id:'custom',text:'我的服务'}),'我的服务');
  assert.equal(tr('提交评价'),'Submit review');setLanguage('zh');

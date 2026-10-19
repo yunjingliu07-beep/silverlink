@@ -1,10 +1,11 @@
 import { initialState, STATUS } from './domain.js';
-import { tr } from './i18n.js';
+import { tr, getLanguage } from './i18n.js';
+import { localizedField } from './community.js';
 const seedTasks = new Map(initialState().tasks.map(task => [task.id,task]));
-// Translate only unchanged fields on known sample tasks. User edits and new tasks stay verbatim.
+// Localize known examples and supported user content without mutating the original.
 export function seedText(task, field) {
   const original = seedTasks.get(task.id);
-  return original && original[field] === task[field] ? tr(original[field]) : task[field];
+  return original && original[field] === task[field] ? tr(original[field]) : localizedField(task,field,getLanguage());
 }
 export function localizeReason(reason) {
   if (reason.startsWith('会说')) return tr('会说{language}', { language: tr(reason.slice(2)) });
