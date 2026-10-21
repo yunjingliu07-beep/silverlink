@@ -1,3 +1,4 @@
+import { CATALOGUES, translate, LANGUAGES } from './i18n.js';
 import { EN } from './i18n-en.js';
 const phrases = {
  '林悦':'Lin Yue','陈阿姨':'Auntie Chen','李大爷':'Uncle Li','王奶奶':'Grandma Wang',
@@ -14,18 +15,12 @@ const phrases = {
 const dictionary = {...EN,...phrases};
 export function autoText(value, target) {
  const text=String(value??''); if(!text)return text;
- if(target==='en') {
-  if(dictionary[text])return dictionary[text];
-  if(!/[\u3400-\u9fff]/.test(text))return text;
-  const bits=text.split(/[、,，]/).map(x=>x.trim());
-  if(bits.every(x=>dictionary[x]||!/[\u3400-\u9fff]/.test(x)))return bits.map(x=>dictionary[x]||x).join(', ');
- } else {
-  const reverse=Object.fromEntries(Object.entries(dictionary).map(([a,b])=>[b.toLowerCase(),a]));
-  if(reverse[text.toLowerCase()])return reverse[text.toLowerCase()];
-  if(/[\u3400-\u9fff]/.test(text))return text;
-  const bits=text.split(/[,，、]/).map(x=>x.trim());
-  if(bits.every(x=>reverse[x.toLowerCase()]))return bits.map(x=>reverse[x.toLowerCase()]).join('、');
- }
+ const dictionaries={en:{...CATALOGUES.en,...phrases},ms:CATALOGUES.ms,ta:CATALOGUES.ta};
+ const source=Object.entries(dictionaries).flatMap(([,dict])=>Object.entries(dict)).reverse().find(([,v])=>v.toLowerCase()===text.toLowerCase())?.[0]||text;
+ const direct=target==='zh'?source:(dictionaries[target]?.[source]??(target==='en'?dictionary[source]:undefined));
+ if(direct && direct!==text)return direct;
+ const bits=text.split(/[、,，]/).map(x=>x.trim());
+ if(bits.length>1){const converted=bits.map(bit=>autoText(bit,target));if(converted.some((v,i)=>v!==bits[i]))return converted.join(target==='zh'?'、':', ');}
  return text;
 }
 export function localizedField(record,key,lang) { return record?.translations?.[key]?.[lang] || autoText(record?.[key],lang); }
@@ -35,8 +30,7 @@ export function saveLocalized(record,key,value,lang) {
  const old=localizedField(record,key,lang);
  if(text!==old){record.translations[key]={};record[key]=text;}
  record.translations[key][lang]=text;
- const other=lang==='en'?'zh':'en', converted=autoText(text,other);
- if(converted!==text)record.translations[key][other]=converted;
+ for(const other of Object.keys(LANGUAGES)){if(other===lang)continue;const converted=autoText(text,other);if(converted!==text)record.translations[key][other]=converted;}
 }
 export function historyRecords(state) {
  const seed=Array.from({length:18},(_,i)=>({id:`HIST-${String(i+1).padStart(3,'0')}`,category:['medical','digital','grocery','companion'][i%4],date:`2026-09-${String(i+1).padStart(2,'0')}`,elder:i%2?'王奶奶':'李大爷',hours:2,points:20,rating:i===17?3:i<15?5:4,status:'verified',sample:true}));

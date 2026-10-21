@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { tr, getLanguage, setLanguage, dateLocale } from '../dist/i18n.js';
+import { tr, getLanguage, setLanguage, dateLocale, CATALOGUES } from '../dist/i18n.js';
 import { EN } from '../dist/i18n-en.js';
 import { initialState, match, parseRequest } from '../dist/domain.js';
 import { seedText, localizeReason, ledgerText, auditText } from '../dist/i18n-data.js';
@@ -10,7 +10,7 @@ test('all static translation calls have nonempty English messages',()=>{
  for(const file of ['app.js','i18n-data.js']) {
   const source=readFileSync(new URL('../dist/'+file,import.meta.url),'utf8');
   for(const [,quote,key] of source.matchAll(/\btr\((['"])(.*?)\1/g)) {
-   if(/[\u3400-\u9fff]/.test(key)) assert.ok(EN[key]?.trim(),`Missing translation: ${key}`);
+   if(/[\u3400-\u9fff]/.test(key)) assert.ok(CATALOGUES.en[key]?.trim(),`Missing translation: ${key}`);
   }
  }
  for(const [key,value] of Object.entries(EN)) assert.ok(value.trim(),`Empty English message: ${key}`);
@@ -49,4 +49,16 @@ test('English requests support digital, grocery, medical and companionship keywo
  assert.equal(parseRequest('A companion for my doctor appointment',{}).category,'medical');
  assert.equal(parseRequest('Help with shopping for vegetables',{}).category,'grocery');
  assert.equal(parseRequest('Join me for a walk',{}).category,'companion');
+});
+
+test('Malay and Tamil cover every catalogue key with matching interpolation variables',()=>{
+ for(const lang of ['ms','ta'])for(const [key,value] of Object.entries(CATALOGUES.en)){
+  const translated=CATALOGUES[lang][key];assert.ok(translated?.trim(),`Missing ${lang}: ${key}`);
+  const tokens=s=>[...s.matchAll(/\{\w+\}/g)].map(m=>m[0]).sort();assert.deepEqual(tokens(translated),tokens(value),`${lang}: ${key}`);
+ }
+});
+test('Malay and Tamil use appropriate locale dates and local request categories',()=>{
+ for(const [lang,locale] of [['ms','ms-SG'],['ta','ta-SG']]){setLanguage(lang);assert.equal(dateLocale(),locale);assert.notEqual(tr('我的服务'),'我的服务');}
+ for(const [text,category] of [['Temani saya ke klinik','medical'],['Belajar telefon pintar','digital'],['Membeli sayur di pasar','grocery'],['மருத்துவமனை செல்ல உதவி','medical'],['காணொளி அழைப்பு','digital'],['காய்கறி வாங்க உதவி','grocery']])assert.equal(parseRequest(text,{}).category,category);
+ setLanguage('zh');
 });

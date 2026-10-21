@@ -10,7 +10,7 @@ with sync_playwright() as p:
     errors=[]
     page.on('pageerror',lambda e:errors.append(str(e)))
     page.goto(BASE_URL, wait_until='networkidle')
-    if LANGUAGE == 'en': page.locator('.topbar [data-action="language"]').click()
+    if LANGUAGE == 'en': page.locator('.topbar [data-language-select]').select_option('en')
     expect(page.locator('.task-card')).to_have_count(6)
     page.locator('[data-filter="digital"]').click()
     expect(page.locator('.task-card')).to_have_count(2)

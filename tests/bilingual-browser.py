@@ -9,7 +9,7 @@ with sync_playwright() as p:
  page.on('pageerror',lambda e:errors.append(str(e)))
  page.goto(BASE,wait_until='networkidle')
  def toggle(modal=False):
-  page.locator(('#modal' if modal else '.topbar')+' [data-action="language"]').click()
+  page.locator(('#modal' if modal else '.topbar')+' [data-language-select]').select_option('zh' if page.locator('html').get_attribute('lang')=='en' else 'en')
  def close():page.locator('#modal [data-action="close"]').click()
  def check_english(root):
   # The switch intentionally displays 中文; proper names and entered text stay in their original language.

@@ -74,9 +74,9 @@ export function transition(state, id, action, payload = {}) {
 }
 export function parseRequest(text, fields) {
   let category = 'companion';
-  if (/医|诊|hospital|clinic|medical|doctor|appointment/i.test(text)) category = 'medical';
-  else if (/手机|视频|照片|数码|phone|whatsapp|video|photo|digital/i.test(text)) category = 'digital';
-  else if (/买|采购|菜|巴刹|grocer|market|shopping|shop|purchase/i.test(text)) category = 'grocery';
+  if (/医|诊|hospital|clinic|medical|doctor|appointment|klinik|doktor|hospital|rawatan|மருத்துவ|மருத்துவர்|மருத்துவமனை/i.test(text)) category = 'medical';
+  else if (/手机|视频|照片|数码|phone|whatsapp|video|photo|digital|telefon|gambar|panggilan|தொலைபேசி|காணொளி|புகைப்பட/i.test(text)) category = 'digital';
+  else if (/买|采购|菜|巴刹|grocer|market|shopping|shop|purchase|pasar|membeli|barangan|sayur|மளிகை|சந்தை|காய்கறி|வாங்க/i.test(text)) category = 'grocery';
   return { title: String(text).trim().slice(0,26), description: String(text).trim(), category, ...fields };
 }
 export function certificateEligibility(state, kind) {
