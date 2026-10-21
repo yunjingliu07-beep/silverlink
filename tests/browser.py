@@ -51,6 +51,7 @@ with sync_playwright() as p:
         page.locator(f'[data-action="verify"][data-id="{id}"]').click()
     complete('SL-1001')
     complete('SL-1004')
+    role('volunteer')
     page.goto(BASE_URL+'/#rewards')
     expect(page.locator('.stat strong').first).to_contain_text('40.0')
     with page.expect_download() as d:
@@ -73,6 +74,8 @@ with sync_playwright() as p:
     expect(page.locator('#publish-form [name="category"]')).to_have_value('digital')
     page.locator('#publish-form [name="title"]').fill('手机教学 <script>alert(1)</script>')
     page.locator('#publish-form button[type="submit"]').click()
+    role('volunteer')
+    page.goto(BASE_URL+'/#explore')
     expect(page.locator('.task-card')).to_have_count(5)
     assert page.locator('article script').count()==0
     page.reload()

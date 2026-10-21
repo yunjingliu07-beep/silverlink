@@ -1,0 +1,15 @@
+{
+  "appId": "sg.silverlink.demo",
+  "appName": "Silver Link 银龄连线",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#f7f8f1"
+  },
+  "plugins": {
+    "SystemBars": {
+      "insetsHandling": "native",
+      "style": "LIGHT"
+    }
+  }
+}
