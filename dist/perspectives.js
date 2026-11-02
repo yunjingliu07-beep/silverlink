@@ -12,4 +12,7 @@ const labels={
  requests:['我的请求','My requests','Permintaan saya','எனது கோரிக்கைகள்'],
  help:['今天需要什么帮助？','How can we help today?','Bagaimana kami boleh membantu hari ini?','இன்று நாங்கள் எவ்வாறு உதவலாம்?'],
 };
-export function ui(key){return labels[key]?.[['zh','en','ms','ta'].indexOf(getLanguage())]||labels[key]?.[1]||key;}
+export function ui(key,language=getLanguage()){return labels[key]?.[['zh','en','ms','ta'].indexOf(language)]||labels[key]?.[1]||key;}
+
+const SECTION_ZH={'VOLUNTEER · COMMUNITY REQUESTS':'志愿者 · 社区服务请求','EVERY HOUR MATTERS':'每一小时都有意义','KINDNESS COMES FULL CIRCLE':'让善意持续传递','A LITTLE ABOUT YOU':'个人资料','CARE, WITH PEACE OF MIND':'安心服务','COMMUNITY OPERATIONS':'社区服务管理','HELP IS CLOSE TO HOME':'帮助就在身边','YOUR REQUESTS, TOGETHER':'我的服务请求','CARE FOR YOUR COMMUNITY':'关怀社区','INSTITUTION · BATCH REQUESTS':'机构 · 批量服务请求','SERVICE CERTIFICATE':'服务证书'};
+export function sectionLabel(value){return getLanguage()==='zh'?(SECTION_ZH[value]||value):value;}

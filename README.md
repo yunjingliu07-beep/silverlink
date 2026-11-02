@@ -8,7 +8,7 @@
 
 ## Four perspectives on the main site
 
-Use **Switch view** in the header. All views run on the existing Silver Link domain:
+Use **Switch view** in the shared header. The view selector, language selector, brand and text-size control keep the same positions in all four perspectives on phones, tablets and desktops. All views run on the existing Silver Link domain:
 
 | View | Route | Theme | Main functions |
 | --- | --- | --- | --- |
@@ -19,6 +19,8 @@ Use **Switch view** in the header. All views run on the existing Silver Link dom
 
 Mobile pages lead with their core actions; bottom navigation provides the most used destinations. Senior controls use at least 19–20px text and 62px buttons. Guidance, community stories and dashboard statistics are in expandable sections below the primary actions. Original matching rules, maps, reviews, appeals, points, certificates, data export, large text and the four community languages remain available. **More** exposes the less-used personal tools. Nonprofit management does not provide resident or patient profile editing; those records belong to the care view.
 
+**Languages:** Chinese and English are available across all four views. Management navigation, forms, status labels, messages, dates, reports and CSV headings are localized; user-entered names and notes remain unchanged. Language choice follows view changes and synchronizes across tabs. Open forms, filters, unsaved notes and batch rows survive language changes. The personal volunteer and senior views also retain Malay and Tamil. Management views use English when arriving with a Malay or Tamil preference, without overwriting that saved preference unless a language is selected.
+
 The existing personal demonstration retains `silverlink-demo-v1`. The staff demonstration uses `silverlink-management-v1`; care requests, nonprofit placement, care completion and nonprofit hour verification share this staff dataset. Personal community bookings and staff placements remain separate demo datasets. The care view links to the original community bookings and batch tools; nonprofit management links to the original service approval/appeal tools. There is no authentication, multi-user backend or live service dispatch in this demonstration.
 
 Static source files are in `dist/`; staff pages are in `dist/manage/`. No iframe or separate preview host is used by the integrated application. Existing language and read-aloud preferences keep their original storage keys. The Android project is unchanged; rebuilding its APK is a separate task.
@@ -28,6 +30,7 @@ Browser regression checks (requires Playwright and Chromium):
 ```bash
 SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/browser.py
 SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/perspectives-browser.py
+SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/management-language-browser.py
 SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/bilingual-browser.py
 SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/multilingual-browser.py
 ```
