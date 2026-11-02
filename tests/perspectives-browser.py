@@ -1,0 +1,160 @@
+import asyncio,json,os
+from pathlib import Path
+from playwright.async_api import async_playwright,expect
+SITE=os.environ.get('SILVERLINK_TEST_URL','http://127.0.0.1:5173').rstrip('/')+'/'
+BASE=SITE+'manage/'
+ROOT=Path(__file__).parent
+async def main():
+ async with async_playwright() as p:
+  browser=await p.chromium.launch(executable_path='/usr/bin/chromium',headless=True,args=['--no-sandbox'])
+  ctx=await browser.new_context(viewport={'width':1440,'height':1080})
+  page=await ctx.new_page();errors=[]
+  page.on('pageerror',lambda e:errors.append(str(e)))
+  r=await page.goto(BASE,wait_until='networkidle')
+  assert r.status==200
+  await expect(page.locator('h1')).to_contain_text('Your team')
+  nav=await page.locator('#sidebar').inner_text()
+  assert 'Beneficiaries' not in nav and 'Residents & patients' not in nav and 'Funding' not in nav
+  assert 'Tan Mei Ling' not in await page.locator('#main').inner_text()
+  await page.locator('[data-action="search"]').click()
+  await page.locator('#global-search').fill('Tan Mei Ling')
+  await expect(page.locator('.search-result')).to_have_count(0)
+  await page.locator('[data-action="close"]').click()
+  await page.locator('[data-action="new-volunteer"]').click()
+  await page.locator('#create-form [name="name"]').fill('Preview Ready Volunteer')
+  await page.locator('#create-form [name="availability"]').select_option('Flexible')
+  await page.locator('#create-form [type="submit"]').click()
+  await expect(page.locator('#main')).to_contain_text('Preview Ready Volunteer')
+  await page.locator('tr').filter(has_text='Preview Ready Volunteer').locator('[data-action="volunteer"]').first.click()
+  await expect(page.locator('[data-action="approve-volunteer"]')).to_be_disabled()
+  for c in await page.locator('#volunteer-profile-form [name="training"]').all():await c.check()
+  await page.locator('#volunteer-profile-form [type="submit"]').click()
+  await page.locator('[data-action="approve-volunteer"]').click()
+  await expect(page.locator('#dialog .status')).to_have_text('Active')
+  await page.locator('[data-action="close"]').click()
+  await page.goto(BASE+'#care/overview')
+  await expect(page.locator('h1')).to_have_text('Care starts with a helping hand.')
+  await page.locator('[data-action="facility"][data-id="hospital"]').click()
+  await expect(page.locator('h1')).to_have_text('Care starts with a helping hand.')
+  await page.locator('[data-action="facility"][data-id="carehome"]').click()
+  await page.locator('[data-action="new-resident"]').click()
+  await page.locator('#create-form [name="name"]').fill('Care Only Resident')
+  await page.locator('#create-form [name="room"]').fill('Room 220')
+  await page.locator('#create-form [name="language"]').select_option('English')
+  await page.locator('#create-form [name="needs"]').fill('A fictional companionship visit.')
+  await page.locator('#create-form [type="submit"]').click()
+  await expect(page.locator('#main')).to_contain_text('Care Only Resident')
+  await page.locator('tr').filter(has_text='Care Only Resident').locator('[data-action="resident"]').first.click()
+  await page.locator('#note-form [name="note"]').fill('Prefers a quiet afternoon conversation.')
+  await page.locator('#note-form [type="submit"]').click()
+  await expect(page.locator('#dialog')).to_contain_text('Prefers a quiet afternoon conversation.')
+  await page.locator('#dialog [data-action="new-request"]').click()
+  await page.locator('#create-form [name="title"]').fill('Connected preview visit')
+  await page.locator('#create-form [name="day"]').select_option('3')
+  await page.locator('#create-form [name="time"]').fill('14:00')
+  await page.locator('#create-form [name="brief"]').fill('Provide afternoon companionship and conversation.')
+  await page.locator('#create-form [type="submit"]').click()
+  await expect(page.locator('#main')).to_contain_text('Connected preview visit')
+  await page.goto(BASE+'#nonprofit/placements')
+  row=page.locator('tr').filter(has_text='Connected preview visit')
+  await expect(row).to_be_visible()
+  assert 'Care Only Resident' not in await page.locator('#main').inner_text()
+  await row.locator('[data-action="request"]').first.click()
+  assert 'Care Only Resident' not in await page.locator('#dialog').inner_text()
+  assert 'Prefers a quiet afternoon' not in await page.locator('#dialog').inner_text()
+  await page.locator('#assignment-form select').select_option('Preview Ready Volunteer')
+  await page.locator('#assignment-form [type="submit"]').click()
+  await expect(page.locator('#dialog .status')).to_have_text('Confirmed')
+  await page.locator('[data-action="close"]').click()
+  await page.goto(BASE+'#care/requests')
+  await page.locator('tr').filter(has_text='Connected preview visit').locator('[data-action="request"]').first.click()
+  await expect(page.locator('#dialog')).to_contain_text('Care Only Resident')
+  await expect(page.locator('#dialog')).to_contain_text('Preview Ready Volunteer')
+  await page.locator('#completion-form [type="submit"]').click()
+  await expect(page.locator('#dialog .status')).to_have_text('Awaiting verification')
+  await page.locator('[data-action="close"]').click()
+  await page.goto(BASE+'#nonprofit/hours')
+  row=page.locator('tr').filter(has_text='Connected preview visit')
+  await row.locator('[data-action="verify-hours"]').click()
+  await expect(page.locator('tr').filter(has_text='Connected preview visit')).to_contain_text('Verified')
+  state=await page.evaluate("JSON.parse(localStorage.getItem('silverlink-management-v1'))")
+  assert next(v for v in state['volunteers'] if v['name']=='Preview Ready Volunteer')['hours']==1.5
+  await page.goto(BASE+'#care/requests')
+  await expect(page.locator('tr').filter(has_text='Connected preview visit')).to_contain_text('Verified')
+  await page.locator('[data-action="facility"][data-id="hospital"]').click()
+  assert 'Care Only Resident' not in await page.locator('#main').inner_text()
+  await page.goto(BASE+'#care/batch')
+  await page.locator('[name="batchName"]').nth(0).fill('Batch Patient One')
+  await page.locator('[name="batchAge"]').nth(0).fill('73')
+  await page.locator('[name="batchRoom"]').nth(0).fill('Ward 3')
+  await page.locator('[name="batchName"]').nth(1).fill('Batch Patient Two')
+  await page.locator('[name="batchAge"]').nth(1).fill('78')
+  await page.locator('[name="createRequests"]').check()
+  await expect(page.locator('#batch-request-options')).to_be_visible()
+  await page.locator('[name="authorised"]').check()
+  await page.locator('#batch-form [type="submit"]').click()
+  await page.locator('[data-action="confirm-batch"]').click()
+  await expect(page.locator('#main')).to_contain_text('Batch Patient One')
+  await expect(page.locator('#main')).to_contain_text('Batch Patient Two')
+  assert 'Care Only Resident' not in await page.locator('#main').inner_text()
+  await page.reload()
+  await expect(page.locator('#main')).to_contain_text('Batch Patient One')
+  await page.goto(BASE+'#nonprofit/reports')
+  async with page.expect_download() as d:
+   await page.locator('[data-action="export"]').click()
+  download=await d.value;content=Path(await download.path()).read_text()
+  assert 'Preview Ready Volunteer' in content and 'Care Only Resident' not in content and 'Batch Patient One' not in content
+  await page.goto(BASE+'#care/residents')
+  await page.locator('[data-control="search-list"]').fill('Batch Patient One')
+  await expect(page.locator('tbody tr')).to_have_count(1)
+  await page.goto(BASE+'#beneficiaries')
+  assert await page.evaluate('location.hash')=='#care/residents'
+  # All four perspectives navigate within this site, and all original languages remain.
+  await page.goto(SITE+'?view=volunteer#explore')
+  await page.locator('#role').select_option('admin')
+  await expect(page.locator('#perspective')).to_have_value('nonprofit')
+  await page.locator('#perspective').select_option('care')
+  await expect(page.locator('body')).to_have_attribute('data-perspective','institution')
+  await page.locator('#perspective').select_option('elder')
+  await expect(page.locator('#role')).to_have_value('elder')
+  for language,lang_attr in [('en','en'),('zh','zh-Hans'),('ms','ms'),('ta','ta')]:
+   await page.locator('.topbar [data-language-select]').select_option(language)
+   await expect(page.locator('html')).to_have_attribute('lang',lang_attr)
+  await page.locator('#role').select_option('volunteer')
+  await expect(page.locator('body')).to_have_attribute('data-perspective','volunteer')
+  await page.locator('#role').select_option('institution')
+  await expect(page.locator('#perspective')).to_have_value('care')
+  # Restore a clean staff preview for screenshots and screen-size checks.
+  await page.evaluate("localStorage.removeItem('silverlink-management-v1')")
+  await page.goto(BASE+'#nonprofit/overview');await page.reload()
+  routes=['nonprofit/'+p for p in ['overview','volunteers','onboarding','training','placements','shifts','hours','reports','settings']]+['care/'+p for p in ['overview','residents','requests','calendar','followups','batch','reports','settings']]
+  for width in [320,390,768,1440]:
+   await page.set_viewport_size({'width':width,'height':900})
+   for route in routes:
+    await page.goto(BASE+'#'+route)
+    await expect(page.locator('#main h1')).to_be_visible()
+    assert await page.evaluate('document.documentElement.scrollWidth<=innerWidth'),f'Overflow {width}/{route}'
+  await page.set_viewport_size({'width':390,'height':844})
+  colours=set()
+  for width in [320,390]:
+   await page.set_viewport_size({'width':width,'height':844})
+   for role,url,selector in [('volunteer',SITE+'?view=volunteer#explore','.task-cta [data-action="apply"]'),('senior',SITE+'?view=elder#explore','.senior-primary [data-action="create"]'),('ngo',BASE+'#nonprofit/overview','[data-action="navigate"][data-route="nonprofit/placements"]'),('care',BASE+'#care/overview','[data-action="new-request"]')]:
+    await page.goto(url)
+    if role in ['volunteer','senior']:
+     await page.locator('.topbar [data-language-select]').select_option('en')
+    target=page.locator(selector).first
+    await expect(target).to_be_visible()
+    bounds=await target.bounding_box()
+    assert bounds['y']+bounds['height']<844*2,(role,width,bounds)
+    assert bounds['height']>=48,(role,width,bounds)
+    assert await page.evaluate('document.documentElement.scrollWidth<=innerWidth'),(role,width)
+    colours.add(await page.evaluate("getComputedStyle(document.body).getPropertyValue('--green').strip()".replace('.strip()', '.trim()')))
+    if role=='senior':
+     assert bounds['height']>=62
+     assert await target.evaluate('e=>parseFloat(getComputedStyle(e).fontSize)')>=19
+     await expect(page.locator('.secondary-content')).not_to_have_attribute('open','')
+  assert len(colours)==4,colours
+  assert not errors,errors
+  print('PASS: volunteer-only nonprofit navigation and search; readiness and approval; institution-scoped elderly records; cross-view request, placement, completion and hour verification; hospital batch intake; persistence; scoped exports; old deep links; all original community views and four languages; 68 staff responsive page checks, four-view switching, large senior controls and first-two-screen mobile actions. No browser errors.')
+  await browser.close()
+asyncio.run(main())

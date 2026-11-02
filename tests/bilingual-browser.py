@@ -40,7 +40,8 @@ with sync_playwright() as p:
  assert '福建话' in saved['profile']['languages'] and 'Hokkien' not in saved['profile']['languages']
  # Canonical language values remain stable when creating a task in English.
  page.goto(BASE+'/#explore')
- page.locator('[data-action="create"]').click()
+ page.goto(BASE+'/?view=elder#explore')
+ page.locator('.senior-primary [data-action="create"]').click()
  page.locator('#request-form [name="description"]').fill('Please help me organise family photos. 我的服务 <script>alert(1)</script>')
  page.locator('#request-form [name="language"]').select_option('英语')
  page.locator('#request-form [name="hours"]').fill('1.5')
@@ -58,6 +59,7 @@ with sync_playwright() as p:
  toggle(True)
  page.locator('#publish-form button[type="submit"]').click()
  task_id=page.evaluate("JSON.parse(localStorage.getItem('silverlink-demo-v1')).tasks[0].id")
+ page.goto(BASE+'/?view=volunteer#explore')
  # Our custom title must not be translated, even though it contains an exact UI phrase.
  page.locator('[data-view="list"]').click()
  expect(page.locator(f'.task-card[data-id="{task_id}"] h3')).to_have_text('我的服务 <custom task>')
@@ -79,9 +81,9 @@ with sync_playwright() as p:
  page.locator('.task-card[data-id="SL-1001"]').click()
  page.locator('.map-summary [data-action="detail"]').click();check_english(page.locator('#modal'))
  page.locator('#modal [data-action="apply"]').click()
- page.locator('#role').select_option('elder')
+ page.goto(BASE+'/?view=elder#services')
  page.locator('[data-action="accept"]').click()
- page.locator('#role').select_option('volunteer')
+ page.goto(BASE+'/?view=volunteer#services')
  page.locator('[data-action="start"]').click()
  page.locator('[name="code"]').fill('000000')
  page.locator('#start-form button').click()

@@ -1,3 +1,4 @@
+import { ui } from '../dist/perspectives.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -37,8 +38,8 @@ test('institution batches become individually matchable tasks and recipient view
  assert.throws(()=>community.batchTasks([],{},()=>''));
 });
 function appHarness(){
- const nodes=new Map();const element=selector=>{if(!nodes.has(selector))nodes.set(selector,{innerHTML:'',textContent:'',value:'',open:false,classList:{add(){},remove(){},toggle(){},contains(){return false;}},close(){this.open=false;},showModal(){this.open=true;},querySelector(){return null;},addEventListener(){}});return nodes.get(selector);};
- const events={};const context=vm.createContext({...reader,...domain,...localization,...data,...community,console,Date,URL,crypto:globalThis.crypto,setTimeout:()=>0,clearTimeout(){},localStorage:{getItem(){return null},setItem(){}},location:{hash:'',href:'https://example.test'},document:{querySelector:element,getElementById:id=>element('#'+id),querySelectorAll:()=>[],documentElement:{dataset:{}},body:element('body'),addEventListener(name,fn){events[name]=fn;}},window:{addEventListener(){},scrollTo(){},scrollY:0}});
+ const nodes=new Map();const element=selector=>{if(!nodes.has(selector))nodes.set(selector,{dataset:{},innerHTML:'',textContent:'',value:'',open:false,classList:{add(){},remove(){},toggle(){},contains(){return false;}},close(){this.open=false;},showModal(){this.open=true;},querySelector(){return null;},addEventListener(){}});return nodes.get(selector);};
+ const events={};const context=vm.createContext({...reader,...domain,...localization,...data,...community,ui,console,Date,URL,URLSearchParams,innerWidth:1440,crypto:globalThis.crypto,setTimeout:()=>0,clearTimeout(){},localStorage:{getItem(){return null},setItem(){}},location:{hash:'',href:'https://example.test'},document:{querySelector:element,getElementById:id=>element('#'+id),querySelectorAll:()=>[],documentElement:{dataset:{}},body:element('body'),addEventListener(name,fn){events[name]=fn;}},window:{addEventListener(){},scrollTo(){},scrollY:0}});
  const source=readFileSync(new URL('../dist/app.js',import.meta.url),'utf8').replace(/^import .*;\n/gm,'');
  vm.runInContext(source+'\nglobalThis.api={setRole:r=>{state.role=r;},setPage:p=>{page=p;},render,showHistory,submitAppeal,resolveAppeal,recipientDetail,getState:()=>state};',context);
  return {api:context.api,element};

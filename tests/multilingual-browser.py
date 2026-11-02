@@ -46,14 +46,14 @@ with sync_playwright() as p:
  for lang in os.environ.get('SILVERLINK_LAYOUT_LANGUAGES','zh,en,ms,ta').split(','):
   language(lang)
   for role in ['elder','volunteer','institution','admin']:
-   page.locator('#role').select_option(role)
+   page.goto(BASE+'/?view='+role+'#explore')
    for width in [320,390,1440]:
     page.set_viewport_size({'width':width,'height':1000})
     for route in ['explore','services','profile','safety']+(['residents'] if role=='institution' else []):
      page.goto(BASE+'/#'+route)
      assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),f'Overflow {lang}/{role}/{width}/{route}'
      assert 'undefined' not in page.locator('main').inner_text(),f'Undefined {lang}/{role}/{route}'
-  page.locator('#role').select_option('elder');page.set_viewport_size({'width':320,'height':1000});page.goto(BASE+'/#explore');action('text-size')
+  page.goto(BASE+'/?view=elder#explore');page.set_viewport_size({'width':320,'height':1000});page.goto(BASE+'/#explore');action('text-size')
   assert not page.evaluate('document.documentElement.scrollWidth>innerWidth'),f'Large type {lang}'
   action('create');assert page.locator('#modal').evaluate('(el)=>el.scrollWidth<=el.clientWidth'),f'Dialog {lang}';action('close',True);action('text-size')
  # Synchronise all four locales across tabs.

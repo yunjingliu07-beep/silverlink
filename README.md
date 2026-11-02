@@ -1,10 +1,36 @@
 # Silver Link 银龄连线
 
-连接新加坡社区长者与志愿者的响应式网站。暖白与森林绿界面，支持手机、平板和桌面，大字号模式及键盘操作。
+连接新加坡社区长者与志愿者的响应式网站。按视角区分的绿、深绿、蓝及深蓝界面，支持手机、平板和桌面，大字号模式及键盘操作。
 
 **中英双语：** 点击页面顶部的 `EN`／`中文` 按钮即可切换，语言选择会自动保存。所有界面、任务示例、匹配原因、提示、日期、表单验证与证书均支持双语。切换不会清空现有记录或未提交的表单；老人、志愿者及机构资料按当前语言显示，保留原文和可校对的中英文版本。常用表达用本地词库转换；支持 Translator API 的浏览器可使用本机翻译（可能下载语言模型），未识别内容保留原文，不虚构翻译或姓名。
 
 **当前交付是可完整体验的本机交互演示，不是可供真实服务运营的生产系统。** 所有默认人物、任务、历史时长与奖励均为虚构。数据只保存在当前浏览器的 `localStorage` 中；角色切换不是身份认证。
+
+## Four perspectives on the main site
+
+Use **Switch view** in the header. All views run on the existing Silver Link domain:
+
+| View | Route | Theme | Main functions |
+| --- | --- | --- | --- |
+| Individual volunteer | `/?view=volunteer#explore` | Green | Find and accept requests, bookings, check-in, hours, rewards and certificates |
+| Nonprofit organisation | `/manage/#nonprofit/overview` | Dark green | Volunteer directory, recruitment, training, placements, shifts, hour verification and reports |
+| Senior | `/?view=elder#explore` | Blue | Large request buttons, service categories, booking confirmation, read aloud, safety and profiles |
+| Care home / hospital | `/manage/#care/overview` | Dark blue | Institution-scoped resident/patient records, support requests, schedules, follow-ups and batch intake |
+
+Mobile pages lead with their core actions; bottom navigation provides the most used destinations. Senior controls use at least 19–20px text and 62px buttons. Guidance, community stories and dashboard statistics are in expandable sections below the primary actions. Original matching rules, maps, reviews, appeals, points, certificates, data export, large text and the four community languages remain available. **More** exposes the less-used personal tools. Nonprofit management does not provide resident or patient profile editing; those records belong to the care view.
+
+The existing personal demonstration retains `silverlink-demo-v1`. The staff demonstration uses `silverlink-management-v1`; care requests, nonprofit placement, care completion and nonprofit hour verification share this staff dataset. Personal community bookings and staff placements remain separate demo datasets. The care view links to the original community bookings and batch tools; nonprofit management links to the original service approval/appeal tools. There is no authentication, multi-user backend or live service dispatch in this demonstration.
+
+Static source files are in `dist/`; staff pages are in `dist/manage/`. No iframe or separate preview host is used by the integrated application. Existing language and read-aloud preferences keep their original storage keys. The Android project is unchanged; rebuilding its APK is a separate task.
+
+Browser regression checks (requires Playwright and Chromium):
+
+```bash
+SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/browser.py
+SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/perspectives-browser.py
+SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/bilingual-browser.py
+SILVERLINK_TEST_URL=http://127.0.0.1:5173 python3 tests/multilingual-browser.py
+```
 
 ## 运行
 
@@ -21,7 +47,7 @@ npm start
 访问 http://localhost:5173 。不要直接以 `file://` 打开 HTML，因为浏览器需要通过 HTTP 加载 ES modules。
 
 ```bash
-npm test          # 19 项业务规则、国际化及角色渲染测试
+npm test          # 27 项业务规则、国际化及角色渲染测试
 npm run build    # 校验发布文件及 JS 语法；静态发布目录为 dist/
 ```
 

@@ -15,7 +15,7 @@ with sync_playwright() as p:
     page.locator('[data-filter="digital"]').click()
     expect(page.locator('.task-card')).to_have_count(2)
     page.locator('[data-filter="all"]').click()
-    def role(r): page.locator('#role').select_option(r)
+    def role(r): page.goto(BASE_URL+'/?view='+r+page.evaluate('location.hash'))
     def action(name, selector='body'): page.locator(f'{selector} [data-action="{name}"]').first.click()
     def complete(id):
         role('volunteer')
