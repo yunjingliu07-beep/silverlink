@@ -2,6 +2,7 @@ import { Capacitor, registerPlugin } from '@capacitor/core';
 import { App } from '@capacitor/app';
 
 const Device = registerPlugin('DemoDevice');
+const managementView = /\/manage(?:\/|$)/.test(location.pathname);
 
 function message(text) {
   const toast = document.getElementById('toast');
@@ -14,7 +15,7 @@ function message(text) {
 const english = () => localStorage.getItem('silverlink-language') === 'en';
 
 if (Capacitor.isNativePlatform()) {
-  // The website creates Blob URLs for its certificate and JSON exports.
+  // Certificates, JSON backups and management CSV reports use Blob URLs.
   // Keep that implementation intact and route download anchors to Android's
   // document picker; it does not require broad file-system permissions.
   const anchorClick = HTMLAnchorElement.prototype.click;
@@ -64,6 +65,41 @@ if (Capacitor.isNativePlatform()) {
   }
   window.SpeechRecognition = NativeSpeechRecognition;
 
+  // Android WebView does not reliably expose the browser speech synthesis API.
+  // Adapt the existing reader to installed Android voices, including its
+  // phrase-by-phrase highlighting, speed, pause and resume controls.
+  const { voices = [] } = managementView ? { voices: [] } : await Promise.race([
+    Device.getVoices().catch(() => ({ voices: [] })),
+    new Promise(resolve => setTimeout(() => resolve({ voices: [] }), 5000)),
+  ]);
+  let speechGeneration = 0;
+  const synth = {
+    getVoices: () => voices,
+    cancel() {
+      speechGeneration++;
+      Device.stopSpeaking().catch(() => {});
+    },
+    speak(utterance) {
+      const generation = ++speechGeneration;
+      Device.speak({ text: utterance.text, language: utterance.lang,
+        voiceName: utterance.voice?.name, rate: utterance.rate })
+        .then(() => {
+          if (generation === speechGeneration) utterance.onend?.();
+        })
+        .catch(() => {
+          if (generation === speechGeneration) utterance.onerror?.({ error: 'unavailable' });
+        });
+    },
+  };
+  Object.defineProperty(window, 'speechSynthesis', { configurable: true, value: synth });
+  window.SpeechSynthesisUtterance = class {
+    constructor(text) { this.text = text; this.rate = 1; }
+  };
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) synth.cancel();
+  });
+  window.addEventListener('pagehide', () => synth.cancel());
+
   document.addEventListener('click', event => {
     const link = event.target.closest('a[href^="tel:"]');
     if (!link) return;
@@ -77,13 +113,16 @@ if (Capacitor.isNativePlatform()) {
     const dialog = document.querySelector('dialog[open]');
     if (dialog) {
       dialog.close();
-    } else if (location.hash && location.hash !== '#explore') {
-      location.hash = 'explore';
     } else {
-      App.exitApp();
+      const home = managementView
+        ? `#${location.hash.startsWith('#care/') ? 'care' : 'nonprofit'}/overview`
+        : '#explore';
+      if (location.hash && location.hash !== home) location.hash = home;
+      else App.exitApp();
     }
   });
 }
 
 // The domain and UI modules remain the same files used by the website.
-await import('./app.js');
+if (managementView) await import('./manage/app.js');
+else await import('./app.js');

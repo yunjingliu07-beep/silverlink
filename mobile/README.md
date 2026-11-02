@@ -1,29 +1,40 @@
-# Silver Link 银龄连线 · 安卓演示版
+# Silver Link 银龄连线 · Android 1.1 / 安卓演示版
+
+## Install on an Android phone
+
+1. Download the `Silver-Link-Android-Demo` ZIP from the latest successful [Android build](https://github.com/yunjingliu07-beep/silverlink/actions/workflows/check.yml).
+2. Extract **Silver-Link-1.1.apk**, open it on the phone, and allow installation from that browser or Files app when Android asks.
+3. Open **Silver Link 银龄连线**. Use the header to switch between individual volunteer, nonprofit volunteer management, senior, and care home/hospital management views, and Chinese or English.
+
+Requires Android 7.0+ with an up-to-date Android System WebView / Chrome. This is an installable, development-signed demo, not a Play Store release. All website pages and assets are bundled for offline use. Data stays on that phone; it does not sync with the website or other devices. Speech input depends on the installed recognition service; read-aloud uses installed offline voices. Install the desired voice in Android speech settings and reopen the app if necessary.
+
+If Android reports a conflicting existing package, export any records you need before uninstalling the older demo. Different build signing keys cannot update each other, and uninstalling removes the app's local data. CI download artifacts are retained for 30 days.
 
 将现有 `../dist/` 网站资源随 APK 一起安装，使用 Capacitor 8。
-页面、四种演示角色、匹配、预约、签到、评分、积分、机构批量录入和双语逻辑沿用网站。
+保留个人志愿者、公益组织志愿者管理、长者、养老院／医院四种视角，以及匹配、预约、签到、评分、积分、证书、申诉、机构批量录入和语言切换。
 网站发布目录未修改；安卓适配只在 `mobile/` 内生效。
 
 ## 安装和使用
 
 - 下载：[GitHub Actions](https://github.com/yunjingliu07-beep/silverlink/actions/workflows/check.yml)
   最新成功构建中的 `Silver-Link-Android-Demo` 附件，解压后得到 APK。
-- 安装包名称：`Silver-Link-Demo-1.0.apk`。
+- 安装包名称：`Silver-Link-1.1.apk`（版本号 1.1，versionCode 2）。
 - 应用名：Silver Link 银龄连线；应用包名：`sg.silverlink.demo`。
 - 最低 Android 7.0（API 24）；建议更新 Android System WebView / Chrome 后使用。
 - 这是使用开发证书签名的演示 APK，可直接安装，不是 Google Play 发布包。
 - 将 APK 下载到安卓手机后打开，按系统提示允许当前下载应用安装此 APK。
 - 页面、图片、中英界面和主要演示流程可离线使用。
 - 资料、预约和积分仅保存在本 App 中，不与网站、其他手机共享；清除应用数据或卸载会丢失记录。
-- 安装后可在顶部切换志愿者、老人、机构和管理员，体验完整服务流程。
+- 安装后可在统一的顶部控件切换个人志愿者、公益组织、长者、养老院／医院，以及中英文。个人视角原有的马来文、淡米尔文也予以保留。
 
 ## 安卓适配
 
-- 返回键优先关闭弹窗，然后返回首页；在首页再次返回退出。
+- 返回键优先关闭弹窗，然后返回当前视角首页；在首页再次返回退出。
 - 系统状态栏、导航栏和软键盘由 Capacitor 原生边距处理。
-- JSON 数据和 HTML 演示证书通过系统文件保存窗口导出，不申请广泛存储权限。
+- JSON 数据、HTML 演示证书和管理视角 CSV 报表通过系统文件保存窗口导出，不申请广泛存储权限。
 - 电话链接只打开系统拨号界面，不自动拨号。
 - 语音输入保留确认步骤，调用设备已有的语音识别服务。是否支持离线识别取决于该服务；不可用时继续文字输入。App 不保存录音。
+- 网页朗读调用 Android 已安装的离线语音，保留当前语言、语速、逐句高亮、暂停和继续。缺少语音时，请到设备语音设置安装后重新打开 App。
 - 固定中英界面和本地词库继续工作；没有额外接入自由文本云翻译服务。
 - 图标和启动界面使用项目原有的绿色／金色连线标志。
 
@@ -65,10 +76,10 @@ python3 -m http.server 5173 --directory www
 python3 scripts/check-mobile.py
 ```
 
-该检查覆盖移动布局、语言和角色保存、Blob 文件导出、返回键优先级、语音成功和失败回退、拨号接口。
+该检查覆盖四视角移动布局、语言和角色保存、JSON/CSV 文件导出、各视角返回键优先级、原生朗读暂停和继续、语音成功和失败回退、拨号接口。
 安卓接口在此检查中使用模拟实现；它不是安卓真机或模拟器测试。
 
-本次构建已通过根目录测试和静态检查、上述移动桥接检查、中英文完整服务流程浏览器回归，
-以及 APK v2 签名、ZIP 对齐和离线资源一致性检查。未运行安卓真机或模拟器测试。
+CI 构建依次检查 APK 签名、16KB 页对齐兼容性、安装包元数据和所有离线资源的逐字节一致性；任何检查失败都不会提供下载附件。
+网页与桥接检查使用 Chromium 和模拟原生接口；未运行安卓真机或模拟器测试。
 
 当前演示仍没有真实身份认证、跨设备任务同步、生产数据库或消息推送。

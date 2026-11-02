@@ -23,7 +23,7 @@ Mobile pages lead with their core actions; bottom navigation provides the most u
 
 The existing personal demonstration retains `silverlink-demo-v1`. The staff demonstration uses `silverlink-management-v1`; care requests, nonprofit placement, care completion and nonprofit hour verification share this staff dataset. Personal community bookings and staff placements remain separate demo datasets. The care view links to the original community bookings and batch tools; nonprofit management links to the original service approval/appeal tools. There is no authentication, multi-user backend or live service dispatch in this demonstration.
 
-Static source files are in `dist/`; staff pages are in `dist/manage/`. No iframe or separate preview host is used by the integrated application. Existing language and read-aloud preferences keep their original storage keys. The Android project is unchanged; rebuilding its APK is a separate task.
+Static source files are in `dist/`; staff pages are in `dist/manage/`. No iframe or separate preview host is used by the integrated application. Existing language and read-aloud preferences keep their original storage keys. Android version 1.1 bundles all four views, with native exports, Back navigation and read-aloud support; see [the Android installation guide](mobile/README.md).
 
 Browser regression checks (requires Playwright and Chromium):
 

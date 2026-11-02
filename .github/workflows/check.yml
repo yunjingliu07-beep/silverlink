@@ -37,13 +37,20 @@ jobs:
       - name: Build signed demo APK
         working-directory: mobile
         run: npm run apk
+      - name: Verify Android signature, alignment and complete website bundle
+        run: |
+          APK=mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose --print-certs "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 4 "$APK"
+          "$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK" | head -5
+          python3 mobile/scripts/check-apk.py "$APK"
       - name: Prepare download
         run: |
           mkdir -p "$RUNNER_TEMP/silverlink-apk"
-          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/silverlink-apk/Silver-Link-Demo-1.0.apk"
+          cp mobile/android/app/build/outputs/apk/debug/app-debug.apk "$RUNNER_TEMP/silverlink-apk/Silver-Link-1.1.apk"
           cp mobile/README.md "$RUNNER_TEMP/silverlink-apk/README.md"
           cd "$RUNNER_TEMP/silverlink-apk"
-          sha256sum Silver-Link-Demo-1.0.apk > SHA256SUMS.txt
+          sha256sum Silver-Link-1.1.apk > SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: Silver-Link-Android-Demo
