@@ -28,3 +28,14 @@ test('redemption preserves nonnegative balance and requires positive integral co
 test('request parser is an explicit local keyword categorizer',()=>{
  assert.equal(parseRequest('陪我去医院',{}).category,'medical');assert.equal(parseRequest('教我使用手机',{}).category,'digital');assert.equal(parseRequest('帮忙采购蔬菜',{}).category,'grocery');assert.equal(parseRequest('散步聊天',{}).category,'companion');
 });
+
+test('application preserves public volunteer details and clears them when withdrawn',()=>{
+ const s=initialState();s.profile.contactPhone='81234567';s.profile.translations={name:{en:'Lin Yue'}};
+ const t=transition(s,'SL-1001','apply');
+ assert.equal(t.volunteer.name,'林悦');assert.equal(t.volunteer.serviceRecord.sessions,18);
+ assert.equal(t.volunteer.contactPhone,undefined);assert.equal(t.volunteer.available,undefined);
+ s.profile.languages.push('福建话');s.profile.translations.name.en='Changed';
+ assert.deepEqual(t.volunteer.languages,['华语','英语']);assert.equal(t.volunteer.translations.name.en,'Lin Yue');
+ transition(s,t.id,'cancel');assert.equal(t.volunteer,undefined);
+ transition(s,t.id,'apply');assert.equal(t.volunteer.translations.name.en,'Changed');
+});

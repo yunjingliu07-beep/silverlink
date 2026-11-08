@@ -32,3 +32,9 @@ body[data-workspace] .coordination-note p{color:var(--muted)}
 @media(max-width:600px){.topbar{position:relative}.topbar .icon-button[data-action="text-size"]{display:flex;align-items:center;justify-content:center;position:absolute;right:16px;top:10px;min-width:44px;min-height:36px;background:var(--mint);border:1px solid var(--line);border-radius:8px;color:var(--green);font-size:16px}}
 body[data-perspective="elder"] .service-option{min-width:0;width:100%}body[data-perspective="elder"] .service-option h3,body[data-perspective="elder"] .service-option-link{min-width:0;max-width:100%;overflow-wrap:anywhere}
 .skip{top:0;transform:translateY(-150%);max-width:calc(100% - 32px)}.skip:focus{top:12px;transform:none}
+
+/* Volunteer details remain readable before a senior confirms the booking. */
+.volunteer-info{background:var(--mint,#edf5fa);border:1px solid var(--line,#d5e3ed);border-radius:16px;padding:18px;margin:18px 0;color:var(--ink);text-align:left}
+.volunteer-info-heading{display:flex;align-items:center;gap:12px}.volunteer-info-heading .avatar{width:46px;height:46px;flex:0 0 46px;font-size:22px}.volunteer-info-heading small{display:block;font-size:14px;color:var(--muted)}.volunteer-info h4{margin:3px 0 0;font-size:23px;line-height:1.3;overflow-wrap:anywhere}
+.volunteer-info dl{margin:16px 0 0;display:grid;gap:10px}.volunteer-info dl>div{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px}.volunteer-info dt{font-size:14px;color:var(--muted)}.volunteer-info dd{font-size:16px;line-height:1.5;margin:0;overflow-wrap:anywhere}.volunteer-record{margin:16px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:16px;line-height:1.6}.volunteer-record small{display:block;color:var(--muted);font-size:12px}
+@media(max-width:600px){.volunteer-info{padding:16px}.volunteer-info dl>div{grid-template-columns:1fr;gap:2px}.volunteer-info dt{font-size:14px}.volunteer-info dd{font-size:17px}}

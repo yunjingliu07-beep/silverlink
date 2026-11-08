@@ -38,6 +38,11 @@ export function stats(state) {
   const ratingCount = state.seed.ratingCount + reviews.length;
   return { hours: state.seed.hours + verified.reduce((a,t) => a + t.actualHours, 0), sessions: state.seed.sessions + verified.length, positives: state.seed.positives + reviews.filter(t => t.elderReview.stars >= 4).length, rating: (state.seed.ratingSum + reviews.reduce((a,t) => a + t.elderReview.stars,0)) / ratingCount };
 }
+export function volunteerProfileSnapshot(state) {
+  const p = state.profile;
+  const translations = Object.fromEntries(['name','interests'].filter(key => p.translations?.[key]).map(key => [key,{...p.translations[key]}]));
+  return { name:p.name, languages:[...p.languages], skills:[...p.skills], area:p.area, interests:p.interests, translations, serviceRecord:{...stats(state)} };
+}
 export function audit(state, message, details = {}) { state.audit.unshift({ id: uid('event'), message, date: new Date().toISOString(), ...details }); }
 export function transition(state, id, action, payload = {}) {
   const t = state.tasks.find(t => t.id === id);
@@ -48,6 +53,7 @@ export function transition(state, id, action, payload = {}) {
     const minutes = time => { const [h,m] = time.split(':').map(Number); return h * 60 + m; };
     const conflict = state.tasks.some(other => other.id !== id && ['applied','reserved','active','confirming'].includes(other.status) && other.date === t.date && minutes(other.time) < minutes(t.time) + t.hours * 60 && minutes(t.time) < minutes(other.time) + other.hours * 60);
     if (conflict) throw new Error('与已申请的服务时间重叠，请选择其他时段。');
+    t.volunteer = volunteerProfileSnapshot(state);
     t.status = 'applied';
   } else if (action === 'accept' && role === 'elder' && t.status === 'applied') { t.status = 'reserved'; t.code = String(Math.floor(100000 + Math.random() * 900000)); }
   else if (action === 'start' && role === 'volunteer' && t.status === 'reserved') {
@@ -62,7 +68,7 @@ export function transition(state, id, action, payload = {}) {
     if (state.reports.some(r => r.taskId === t.id && !r.closed)) throw new Error('此任务有尚未处理的反馈，请先处理后再核实。');
     t.status = 'verified'; const points = Math.round(t.actualHours * 10); state.points += points;
     state.ledger.unshift({ id: uid('points'), text: t.title, taskId:t.id, amount: points, date: new Date().toISOString().slice(0,10) });
-  } else if (action === 'cancel' && ['volunteer','elder'].includes(role) && ['applied','reserved'].includes(t.status)) { t.status = 'open'; delete t.code; }
+  } else if (action === 'cancel' && ['volunteer','elder'].includes(role) && ['applied','reserved'].includes(t.status)) { t.status = 'open'; delete t.code; delete t.volunteer; }
   else if (action === 'review' && ['volunteer','elder'].includes(role) && ['completed','verified'].includes(t.status)) {
     const key = role === 'elder' ? 'elderReview' : 'volunteerReview';
     if (t[key]) throw new Error('你已经提交过评价。');
